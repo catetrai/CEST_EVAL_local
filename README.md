@@ -20,12 +20,12 @@ The analysis works on 2-D CEST data. If you have acquired more than one slice yo
 
 For basic Z-spectra analysis, the following scans are necessary and sufficient:
 
- - **Mz**: one series of saturation images (e.g. 61 images with $\mathtt{\Delta\omega}$ = -7.5 : 0.25 : +7.5 ppm).
+ - **Mz**: one series of saturation images (e.g. 61 images with frequency offsets -7.5 : 0.25 : +7.5 ppm).
  - **M0**: one image acquired without RF saturation pulse.
  
 Additional acquisitions that are used for field inhomogeneity corrections and for T1 mapping:
 
- - **Mz** image series at different B1 strengths: e.g. with B1 = 0.5-3.0 $\mathtt{\mu}$T. At least two such series are needed for B1-inhomogeneity correction with the 'Z-B1-correction' method (see Windschuh et al., 2015). Note that B1 correction also requires a B1 map obtained with a WASABI sequence.
+ - **Mz** image series at different B1 strengths: e.g. with B1 = 0.5-3.0 muT. At least two such series are needed for B1-inhomogeneity correction with the 'Z-B1-correction' method (see Windschuh et al., 2015). Note that B1 correction also requires a B1 map obtained with a WASABI sequence.
  - **WASABI**: image series for simultaneous B0- ("WAter Shift") and B1- ("BI") mapping. These maps are used for field inhomogeneity correction (see Schuenke et al., 2016).
  - **T1 mapping sequence**: a series of scans with different
 inversion recovery times for T1 mapping. A T1 map is needed for calculating the relaxation-compensated CEST contrast, AREX (see 'Contrasts' below).
@@ -51,16 +51,16 @@ Z_uncorr = NORM_ZSTACK(Mz_stack, M0_stack, P, Segment);
 
 ### Correcting for field inhomogeneities ###
 
-Before computing Z-spectra, ideally you would like to correct the Mz images for inhomogeneities both in the static magnetic field (B0) and in the saturation field (B1). This requires a $\mathtt{\Delta}$B0 map and a relative B1 map, respectively.  If you have acquired a WASABI sequence, you can derive both simultaneously using the WASABI method. Otherwise, you can still perform B0 correction using an internally-computed $\mathtt{\Delta}$B0 map.
+Before computing Z-spectra, ideally you would like to correct the Mz images for inhomogeneities both in the static magnetic field (B0) and in the saturation field (B1). This requires a dB0 map and a relative B1 map, respectively.  If you have acquired a WASABI sequence, you can derive both simultaneously using the WASABI method. Otherwise, you can still perform B0 correction using an internally-computed dB0 map.
 
 #### WASABI evaluation ####
 (1) Load WASABI data and do M0-normalization.
 
 (2) Run WASABI fit. This step is implemented by the general fitting function `FIT_3D`, which uses parallel computing (if your Matlab license supports it). A numeric code for the specific WASABI routine is stored in the `P` structure in the field `P.FIT.modelnum`.
 
-(3) From the output of the fit, we calculate the $\mathtt{\Delta}$B0-map (`dB0_stack_ext`) and the relative B1 map (`B1map`). These can be plotted and visualized as images. The order of magnitude of the pixel values will give you a feeling for whether field inhomogeneities are a major concern in your acquisitions.
+(3) From the output of the fit, we calculate the dB0-map (`dB0_stack_ext`) and the relative B1 map (`B1map`). These can be plotted and visualized as images. The order of magnitude of the pixel values will give you a feeling for whether field inhomogeneities are a major concern in your acquisitions.
 
-(4) Make 5-D array `Z_stack` of B0-corrected Z-spectra at different B1 strengths (dimensions: x,y,z,w,B1). 
+(4) Make 5-D array `Z_stack` of B0-corrected Z-spectra at different B1 strengths (dimensions: x,y,z,w,B1).
 
 (5) Run Z-B1-correction:
 ```matlab
@@ -76,11 +76,11 @@ Z_corrExt = Z_stack_corr(:, :, :, :, 1);
 
 #### B0-correction using internal map ####
 
-(1) Calculate an internal $\mathtt{\Delta}$B0 map. This is given by the x-axis offset of the minimum of the interpolated Z-spectrum from the nominal 0 ppm.
+(1) Calculate an internal dB0 map. This is given by the x-axis offset of the minimum of the interpolated Z-spectrum from the nominal 0 ppm.
 ```matlab
 dB0_stack_int = MINFIND_SPLINE_3D(Mz_stack, Segment, P);
 ```
-(2)  Then do pixel-wise B0 correction. This simply centers each pixel’s Z-spectrum by shifting it by the calculated x-offset ($\mathtt{\Delta}$B0 map):
+(2)  Then do pixel-wise B0 correction. This simply centers each pixel’s Z-spectrum by shifting it by the calculated x-offset dB0 map):
 ```matlab
 Mz_CORR = B0_CORRECTION(Mz_stack, dB0_stack_int, P, Segment);
 ```
@@ -89,7 +89,7 @@ Mz_CORR = B0_CORRECTION(Mz_stack, dB0_stack_int, P, Segment);
 ### T1 mapping ###
 Implemented by function `T1eval_levmar`. The fitting is sensitive to starting parameters -- try tweaking them to see if the output improves.
 
-### Multi-Lorentzian fitting of Z-spectra###
+### Multi-Lorentzian fitting of Z-spectra ###
 
 To model CEST effects of interest we fit a sum of Lorentzian line shapes to each pixel’s Z-spectrum. The fit is performed pixel-wise by calling `FIT_3D` with fitting parameters specified in the `P`structure (default is 5-pool model: water, amine, amide, NOE, MT). The function `get_FIT_LABREF` then calculates Zlab and Zref (used for CEST contrasts).
 
@@ -105,8 +105,8 @@ The ‘invivo’ argument specifies a 6-pool Lorentzian model that includes Ultr
 
 The CEST effect can be quantified using different metrics:
 
- - **MTR_asym** _(not implemented)_: Magnetization Transfer Ratio asymmetry. It is simply computed as the difference between each Z-value and the value at the symmetrically opposite spectral location: $\mathtt{Z(\Delta\omega) - Z(-\Delta\omega)}$.
- - **MTR_LD**: Magnetization Transfer Ratio, where the asymmetry is calculated as linear difference between Zref($\mathtt{\Delta\omega}$) and Zlab($\mathtt{\Delta\omega}$). This measure is confounded by water saturation spillover effects (‘dilution’ of the Z-spectrum), especially at higher B1 strengths (Zaiss et al., 2014).
+ - **MTR_asym** _(not implemented)_: Magnetization Transfer Ratio asymmetry. It is simply computed as the difference between each Z-value and the value at the symmetrically opposite spectral location.
+ - **MTR_LD**: Magnetization Transfer Ratio, where the asymmetry is calculated as linear difference between Zref and Zlab at each frequency offset. This measure is confounded by water saturation spillover effects (‘dilution’ of the Z-spectrum), especially at higher B1 strengths (Zaiss et al., 2014).
  - **MTR_Rex**: Magnetization Transfer Ratio, where the asymmetry is calculated as the difference of the reciprocal terms. Does spillover- and MT-correction.
  - **AREX** (Apparent Exchange-Dependent Relaxation): MTR_Rex normalized by T1 map. Relaxation-compensated measure.
 
