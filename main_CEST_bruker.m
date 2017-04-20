@@ -16,7 +16,7 @@
 
 
 %% Add main CEST code folder and subfolders to path
-code_directory = '~/Documents/MATLAB/CEST_EVAL-master-2';
+code_directory = '';
 cd(code_directory);
 addpath(genpath('.'));
 
@@ -86,9 +86,7 @@ B1_output = protocol(ix.Mz).B1;
 Z_stack_corr = Z_B1_correction(Z_stack, B1map, B1_input, B1_output, Segment, 'linear');
 Z_corrExt = Z_stack_corr(:,:,:,:,1);
 
-
 %% ======================= MULTI-LORENTZIAN FITTING =======================
-
 %For Ultravist phantom analysis, use function instead:
 %[Zlab, Zref, P, popt] = lorentzianfit_main(Z_corrExt, P, Segment, 'ultravist')
 
@@ -118,7 +116,6 @@ P.FIT.lower_limit_fit = lb; P.FIT.upper_limit_fit = ub; P.FIT.start_fit = p0;
 %% IMGUI: look at fitted Z-spectra with individual Lorentzian components
 close(imgui); imgui
 
-
 %% ============================== T1 MAPPING ==============================
 sequenceType = 'T1mapping';
 load_CEST_bruker
@@ -141,7 +138,6 @@ P_T1.FIT.start_fit = p0; StartValues=p0;
 nROIs = 1;
 [T1info, T1map, popt_T1] = T1eval_levmar(T1_stack,1,nROIs,P_T1,Segment,StartValues);
 
-
 %% ====================== CEST CONTRAST CALCULATION =======================
 % Change 'Amide' and relative chemical shift value (3.5) to whichever
 % peak/pool you want to look at.
@@ -162,10 +158,7 @@ contrast_img = AREX(pos_Amide, 'Amide');
 
 figure; imagesc(contrast_img); colorbar
 
-
 %% ====================== WRITE CEST CONTRAST IMAGE =======================
 % Set full path (including file name .dcm) of DICOM file to be written
 dicomFilePath = '';
 cest2dicom(contrast_img, protocol(ix.Mz).Path, dicomFilePath);
-
-

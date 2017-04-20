@@ -41,15 +41,14 @@ btn = uicontrol('Style', 'pushbutton', 'String', sprintf('Set %s',sequenceType),
 % wait to clear figure until button push
 waitfor(fig, 'Name', '');
 
-% functions
+%--------------------------------------------------------------------------
     function getSelectionDirectory(hObject, eventdata)
         ix(1).(sequenceType) = eventdata.Indices(:,1);
         hasSelectionBeenMade = true;
-%         assignin('base', ixvar, ind);
     end
 
+%--------------------------------------------------------------------------
     function clearFigure(hObject, eventdata)
-%         if evalin('base', sprintf('exist(''%s'',''var'')',ixvar))
         if hasSelectionBeenMade
             clf;
             fig.Name = '';
