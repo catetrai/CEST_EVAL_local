@@ -6,6 +6,9 @@ CEST evaluation for Bruker, step-by-step
 
 Caterina Trainito
 
+Department of Preclinical Imaging and Radiopharmacy,
+University of Tuebingen
+
 https://github.com/catetrai
 
 caterina.trainito@student.uni-tuebingen.de
