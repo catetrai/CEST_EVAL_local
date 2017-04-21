@@ -1,5 +1,7 @@
 CEST evaluation for Bruker, step-by-step
-====
+===
+
+Code adapted for internal lab use from M. Zaiss et al. at https://github.com/cest-sources/CEST_EVAL
 
 ----------
 
